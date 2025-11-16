@@ -12,7 +12,7 @@ dotenv.config();
 
 const app = express();
 const PORT= process.env.PORT || 5001;
-const __dirname = path.resolbve();
+const __dirname = path.resolve();
 
 // Middleware to parse JSON bodies
 if (process.env.NODE_ENV !== "production") {
