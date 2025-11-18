@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import cors from 'cors';
+import cors from 'cors'; // <-- Must be imported
 import path from 'path';
 
 import batchesRoutes from './routes/batchesRoutes.js';
@@ -14,22 +14,12 @@ const app = express();
 const PORT= process.env.PORT || 5001;
 const __dirname = path.resolve();
 
-// Middleware to parse JSON bodies
 
-// 🎯 FIX: CONDITIONAL CORS IMPLEMENTATION
-if (process.env.NODE_ENV !== "production") {
-    // 1. In Development: Allow the specific Web App localhost origin.
-    app.use(
-        cors({
-            origin: "http://localhost:5173",
-        })
-    );
-} else {
-    // 2. In Production (Deployed on Render): Allow ALL origins (*).
-    // This is required because the mobile app's origin cannot be easily predicted, 
-    // and this server is primarily an API/Controller.
-    app.use(cors());
-}
+// 🎯 CRITICAL FIX: UNIVERSAL CORS POLICY
+// This must be placed before any routes or JSON middleware to ensure
+// the mobile app (and its localhost:8081 origin) is allowed access.
+app.use(cors()); 
+
 
 app.use(express.json());
 app.use(rateLimiter);
@@ -37,7 +27,7 @@ app.use(rateLimiter);
 app.use("/api/batch", batchesRoutes);
 
 if (process.env.NODE_ENV === "production") {
-    // This block handles serving the static web frontend files.
+    // This block remains untouched and serves your static web frontend files.
     app.use(express.static(path.join(__dirname, "../frontend/dist")));
 
     app.get("*", (req, res) => {
